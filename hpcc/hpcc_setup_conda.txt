@@ -1,0 +1,56 @@
+# in general anaconda set up, skip to ##### if alread setup anaconda, got this from HPCCC website.
+# https://www.depts.ttu.edu/hpcc/userguides/application_guides/python.local_installation.php
+#  Running the following script will automate the process of installing a local copy of Miniconda v3
+/lustre/work/examples/InstallPython.sh
+#  Once complete you will need to run the following commands before you can actually use the new environment you created.
+. $HOME/conda/etc/profile.d/conda.sh
+conda activate
+. $HOME/conda/etc/profile.d/conda.sh
+##############################
+# IMPORTANT
+# how I set  up the actual conda / python enviorment . ORDER OF INSTALL MATTERS FOR SOME REASON.
+conda config --append channels conda-forge
+conda create -n llm_lang3 scipy numpy  faiss-gpu accelerate transformers langchain 
+conda activate llm_lang3
+conda install -c conda-forge notebook
+pip3 install cchardet
+pip3 install sentence_transformers 
+pip3 install "unstructured[all-docs]"
+#
+# crate new file location to run
+mkdir llm
+cd llm
+# add python file (not notebook) (llm_rolling_thunder_langchain_test.py) to folder (use globus)
+# add pdf
+# add job submission file (hpcc_job_sub1) ( a bash file)
+# to run job
+sbatch hpcc_job_sub1
+# to list job 
+squeue --user <eraider>
+########################################################################
+# 
+
+####
+#useing HPCC for notebook , could not get HPCC to use gpu with jupyter-notebook .
+# https://www.depts.ttu.edu/hpcc/userguides/general_guides/jupyter-notebooks.php
+#login to hpcc
+interactive -p nocona
+. $HOME/conda/etc/profile.d/conda.sh
+conda activate <conda_enviorment>
+jupyter notebook --no-browser --ip=0.0.0.0
+#output looks like 
+http://cpu-25-37:8888/tree?token=f4e787bfafbb1445f56b3bff3941023bcff301bbaebf2d6e
+http://127.0.0.1:8888/tree?token=f4e787bfafbb1445f56b3bff3941023bcff301bbaebf2d6e
+# login to second terminal
+ ssh -J <eraider>@ssh.ttu.edu <eraider>@login.hpcc.ttu.edu -L pppp:cpu-NN-nn:8888 
+# this example pppp = 8888 NN = 25 nn = 37
+# enter into browser
+http://127.0.0.1:8888/tree?token=f4e787bfafbb1445f56b3bff3941023bcff301bbaebf2d6e
+################
+#general info for logining in to hpcc in case somebody does not rember/know
+# https://www.depts.ttu.edu/hpcc/userguides/general_guides/
+#download wsl
+# download mobaxterm
+#login using moba and wsl
+ssh -J <eraider>@ssh.ttu.edu <eraider>@login.hpcc.ttu.edu
+
