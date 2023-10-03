@@ -2,7 +2,7 @@
 LLM For Lockhead Martin <br>
 location of Air force manual pdf <br>
 https://www.tinker.af.mil/Resources/Technical-Orders/ <br>
-present part 1 <br>
+presentation slides part 1 <br>
 https://docs.google.com/presentation/d/1RwcMQIJeprXKeABc_dgIbCexHcJ9bvoZdZr-uRVXd4Q/edit#slide=id.g287007c2c15_0_0<br>
 
 srs part 1 <br>
@@ -12,3 +12,5 @@ https://colab.research.google.com/drive/1VfVMSvrKAmlgOcc9yOjBNC-TITuZZhpc#scroll
 Webpage <br>
 https://karltonh.github.io/Rollingthunder_ttu/#/about <br>
 
+    general llm resources <br>
+https://docs.google.com/document/d/1D1ULMhXk451d1DGzC6euVl7FdKZZk6NViIfIRdWR0gI/edit?usp=sharing <br>
