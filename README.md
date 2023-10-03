@@ -14,3 +14,6 @@ https://karltonh.github.io/Rollingthunder_ttu/#/about <br>
 
     general llm resources <br>
 https://docs.google.com/document/d/1D1ULMhXk451d1DGzC6euVl7FdKZZk6NViIfIRdWR0gI/edit?usp=sharing <br>
+Home page for class. genereal resources like syllabus, what report 1 should look like <br>
+https://www.myweb.ttu.edu/tnhondan/CS4366/  <br>
+
