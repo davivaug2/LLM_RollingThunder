@@ -4,7 +4,7 @@ location of Air force manual pdf <br>
 https://www.tinker.af.mil/Resources/Technical-Orders/ <br>
 presentation slides part 1 <br>
 https://docs.google.com/presentation/d/1RwcMQIJeprXKeABc_dgIbCexHcJ9bvoZdZr-uRVXd4Q/edit#slide=id.g287007c2c15_0_0<br>
-Inmterview <br>
+Interview <br>
 https://docs.google.com/document/d/12KeBvNiS219Lco9fX-p9viiWkgE0xZdSu-_kupvsYt4/edit?pli=1 <br>
 srs part 1 <br>
 https://docs.google.com/document/d/1WxQtuTVczKCXtW2QyVOc7PNQP2OaxPAjnmscop8cYh0/edit?usp=sharing <br>
