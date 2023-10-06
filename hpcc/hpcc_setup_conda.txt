@@ -17,6 +17,7 @@ pip3 install cchardet
 pip3 install sentence_transformers 
 pip3 install "unstructured[all-docs]"
 pip3 install pypdf
+pip3 install datasets
 #
 # crate new file location to run
 mkdir llm
