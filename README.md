@@ -29,3 +29,10 @@ presentation slides part 1 <br>
 https://docs.google.com/presentation/d/1RwcMQIJeprXKeABc_dgIbCexHcJ9bvoZdZr-uRVXd4Q/edit#slide=id.g287007c2c15_0_0<br>
 srs part 1 <br>
 https://docs.google.com/document/d/1WxQtuTVczKCXtW2QyVOc7PNQP2OaxPAjnmscop8cYh0/edit?usp=sharing <br>
+
+
+Folder 1 contains all Air force PDF <br>
+Colab File contains the Main program , implments vector search / LLM retrieval-augmented generation. <br>
+HPCC contains a donwloaded Colab Python file for running on Texas Tech High Performance Computeing Center <br>
+presentation_misc contains documents and presentations about the program <br>
+
