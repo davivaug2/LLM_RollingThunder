@@ -175,6 +175,8 @@ name26 = 'AFD-131009-054.PDF'
 name27 = 'AFD-191106-00-5-16.pdf'
 list_name = {name1,name2,name3,name4,name5,name6,name7 ,name8,name9,name10,name11,name12 ,
              name13 ,name14 ,name15 ,name16,name17 ,name19 ,name19 ,name20 ,name21 ,name22,name23,name24,name25 ,name26 ,name27}
+# list_name = {name1}
+             
 
 """# Next code Section is for takeing the PDF's and vectorize them for a database. Got some of the code from https://colab.research.google.com/drive/1Z9R5wSF9tF_4bxYSXVKmOHM2gu7B7QVQ#scrollTo=NvEsaUTrReEG"""
 
@@ -233,8 +235,10 @@ random.shuffle(flat_list)
 #chunk_size = 600
 #chunked_list = [flat_list[i:i+chunk_size] for i in range(0, len(flat_list), chunk_size)]
 #print(len(chunked_list))
-length = len(flat_list) // 5
-test_set, train_set = flat_list[:length], flat_list[length:]
+length = len(flat_list) // 1
+#length = len(flat_list) // 5
+#test_set, train_set = flat_list[:length], flat_list[length:]
+train_set, test_set = flat_list[:length], flat_list[length:]
 
 print(len(test_set))
 print(len(train_set))
@@ -259,6 +263,8 @@ with open('test.txt', 'w') as outfile:
 outfile.close()
 
 dataset = load_dataset('text', data_files={'train': ['train.txt'], 'validation': 'test.txt'})
+#dataset2 = load_dataset2(dataset_name, split="train")
+dataset2 = load_dataset('text', data_files={'text': ['train.txt']})
 
 tokenized_datasets = dataset.map(tokenize_function, batched=True, num_proc=NUM_PROC, remove_columns=["text"])
 
@@ -303,26 +309,47 @@ bnb_config2 = BitsAndBytesConfig(
 model_to_be_modified = AutoModelForCausalLM.from_pretrained(
     model_name,device_map="auto"
 )
-model_to_be_modified = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    quantization_config=bnb_config,
-    device_map="auto",
-    trust_remote_code=True
-)
+
 model_to_be_modified = AutoModelForCausalLM.from_pretrained(
     model_name,
     device_map="auto",
     trust_remote_code=True
 )
 
-"""
+
 model_to_be_modified = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config2,
     device_map="auto",
     trust_remote_code=True
 )
+"""
+model_to_be_modified = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    quantization_config=bnb_config,
+    device_map="auto",
+    trust_remote_code=True
+)
 
+from peft import LoraConfig
+
+lora_alpha = 16
+lora_dropout = 0.1
+lora_r = 64
+
+peft_config = LoraConfig(
+    lora_alpha=lora_alpha,
+    lora_dropout=lora_dropout,
+    r=lora_r,
+    bias="none",
+    task_type="CAUSAL_LM",
+    target_modules=[
+        "query_key_value",
+        "dense",
+        "dense_h_to_4h",
+        "dense_4h_to_h",
+    ]
+)
 
 
 
@@ -341,17 +368,6 @@ training_args = TrainingArguments(
     #
     #
 """
-training_args = TrainingArguments(
-    f"{model_name}-finetuned_falcon_airforce_pdf",
-    evaluation_strategy = "epoch",
-    learning_rate=2e-5,
-    weight_decay=0.01,
-    push_to_hub=True,
-)
-
-
-    #
-    #
 """
 trainer = Trainer(
     model=model_to_be_modified,
@@ -361,22 +377,75 @@ trainer = Trainer(
     gradient_accumulation_steps=2,
     max_split_size_mb=64,
 )
+training_args = TrainingArguments(
+    f"{model_name}-finetuned_falcon_airforce_pdf",
+    evaluation_strategy = "epoch",
+    learning_rate=2e-5,
+    weight_decay=0.01,
+    push_to_hub=True,
+)
+
+"""
+output_dir = "./results"
+per_device_train_batch_size = 4
+gradient_accumulation_steps = 4
+optim = "paged_adamw_32bit"
+save_steps = 10
+logging_steps = 10
+learning_rate = 2e-4
+max_grad_norm = 0.3
+max_steps = 500
+warmup_ratio = 0.03
+lr_scheduler_type = "constant"
+
+training_arguments = TrainingArguments(
+    output_dir=output_dir,
+    per_device_train_batch_size=per_device_train_batch_size,
+    gradient_accumulation_steps=gradient_accumulation_steps,
+    optim=optim,
+    save_steps=save_steps,
+    logging_steps=logging_steps,
+    learning_rate=learning_rate,
+    fp16=True,
+    max_grad_norm=max_grad_norm,
+    max_steps=max_steps,
+    warmup_ratio=warmup_ratio,
+    group_by_length=True,
+    lr_scheduler_type=lr_scheduler_type,
+    gradient_checkpointing=True,
+    push_to_hub=True
+)
+
+
+    #
+    #
 """
 trainer = Trainer(
     model=model_to_be_modified,
     args=training_args,
     train_dataset=lm_datasets["train"],
-    eval_dataset=lm_datasets["validation"],
-    
+    eval_dataset=lm_datasets["validation"], 
 )
+"""
+from trl import SFTTrainer
 
+max_seq_length = 512
+
+trainer = SFTTrainer(
+    model=model_name,
+    train_dataset=dataset2,
+    peft_config=peft_config,
+    dataset_text_field="text",
+    max_seq_length=max_seq_length,
+    tokenizer=tokenizer,
+    args=training_arguments,
+)
+for name, module in trainer.model.named_modules():
+    if "norm" in name:
+        module = module.to(torch.float32)
     #
 # torch.cuda.set_per_process_memory_fraction(0.8)
 trainer.train()
-
-import math
-eval_results = trainer.evaluate()
-print(f"Perplexity: {math.exp(eval_results['eval_loss']):.2f}")
 
 
 
