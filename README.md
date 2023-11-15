@@ -10,6 +10,8 @@ Stage 2: Software Design Specification (SDS) <br>
 https://docs.google.com/document/d/1GA7Bo1o6AbBTL2uYdca1smEVKEbySoOfR1rkkDCV7FU/edit<br>
 code prototype google colab <br>
 https://colab.research.google.com/drive/1VfVMSvrKAmlgOcc9yOjBNC-TITuZZhpc#scrollTo=kGQOSG71OLGK <br>
+clean version <br>
+https://colab.research.google.com/drive/1Mq4Dv0YAE-AkpMgPWoQ9tp9_lLlXc5aC?usp=sharing <br>
 Webpage <br>
 https://karltonh.github.io/Rollingthunder_ttu/#/about <br>
 general llm resources <br>
