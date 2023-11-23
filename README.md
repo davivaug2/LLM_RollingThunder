@@ -3,11 +3,11 @@ LLM For Lockhead Martin <br>
 Home page for class. genereal resources like syllabus, what report  should look like etc <br>
 https://www.myweb.ttu.edu/tnhondan/CS4366/  <br>
 
-presentation slides part 2 <br>
-[https://docs.google.com/presentation/d/1u0BzdWN0TD1h-MxzAtJvN9c2u1oQMldfErBZREOwPnI/edit#slide=id.p](https://docs.google.com/presentation/d/1VB6A7OdgUooMGLjT4urLMJOxq_vvRpTpg4OeBqaR8e0/edit#slide=id.p)
+presentation slides part 3 <br>
+[https://docs.google.com/presentation/d/1u0BzdWN0TD1h-MxzAtJvN9c2u1oQMldfErBZREOwPnI/edit#slide=id.p](https://docs.google.com/presentation/d/1VB6A7OdgUooMGLjT4urLMJOxq_vvRpTpg4OeBqaR8e0/edit#slide=id.p)](https://docs.google.com/presentation/d/1WzbW_xyrRAGHQwn1QV0933lpwZ-T7kJSaEc4AvbXb2w/edit#slide=id.g29e74661343_0_11)
 
-Stage 2: Software Design Specification (SDS) <br>
-https://docs.google.com/document/d/1GA7Bo1o6AbBTL2uYdca1smEVKEbySoOfR1rkkDCV7FU/edit<br>
+Stage 3: Software Design Specification (SDS) <br>
+https://docs.google.com/document/d/1qIBHeemz39R8ByKDC5tSC4JYmyc1TQOQCUyu6BqOxbY/edit<br>
 code prototype google colab <br>
 https://colab.research.google.com/drive/1VfVMSvrKAmlgOcc9yOjBNC-TITuZZhpc#scrollTo=kGQOSG71OLGK <br>
 clean version <br>
@@ -31,6 +31,13 @@ presentation slides part 1 <br>
 https://docs.google.com/presentation/d/1RwcMQIJeprXKeABc_dgIbCexHcJ9bvoZdZr-uRVXd4Q/edit#slide=id.g287007c2c15_0_0<br>
 srs part 1 <br>
 https://docs.google.com/document/d/1WxQtuTVczKCXtW2QyVOc7PNQP2OaxPAjnmscop8cYh0/edit?usp=sharing <br>
+
+presentation slides part 2 <br>
+[https://docs.google.com/presentation/d/1u0BzdWN0TD1h-MxzAtJvN9c2u1oQMldfErBZREOwPnI/edit#slide=id.p](https://docs.google.com/presentation/d/1VB6A7OdgUooMGLjT4urLMJOxq_vvRpTpg4OeBqaR8e0/edit#slide=id.p)
+
+Stage 2: Software Design Specification (SDS) <br>
+https://docs.google.com/document/d/1GA7Bo1o6AbBTL2uYdca1smEVKEbySoOfR1rkkDCV7FU/edit<br>
+code prototype google colab <br>
 
 
 Folder 1 contains all Air force PDF <br>
