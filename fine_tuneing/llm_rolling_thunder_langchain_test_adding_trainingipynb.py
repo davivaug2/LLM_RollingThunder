@@ -220,15 +220,22 @@ merger.write("merged.pdf")
 merger.close()
 '''
 
+from peft import LoraConfig
+
+
 #pdf_docs = get_pdf_splits("merged.pdf")
 
 # add all document chinks
+not_added = False
 all_doc = []
-for name in list_name:
-  pdf_docs = get_pdf_splits(name)
-  all_doc.append(pdf_docs)
+if(not_added == True):
+  for name in list_name:
+    pdf_docs = get_pdf_splits(name)
+    all_doc.append(pdf_docs)
 
 flat_list = [item for sublist in all_doc for item in sublist]
+from datasets import load_dataset
+
 
 import random
 random.shuffle(flat_list)
@@ -237,39 +244,252 @@ random.shuffle(flat_list)
 #print(len(chunked_list))
 length = len(flat_list) // 1
 #length = len(flat_list) // 5
-#test_set, train_set = flat_list[:length], flat_list[length:]
 train_set, test_set = flat_list[:length], flat_list[length:]
 
+
+not_added2 = False
 print(len(test_set))
 print(len(train_set))
-
-######
-model_name = "tiiuae/falcon-7b-instruct"
-#
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-def tokenize_function(examples):
-    return tokenizer(examples["text"])
-
-from datasets import load_dataset
-
-print(len(train_set))
-with open('train.txt', 'w') as outfile:
-  outfile.write('\n'.join(str(i) for i in train_set))
-outfile.close()
-print(len(test_set))
-with open('test.txt', 'w') as outfile:
-  outfile.write('\n'.join(str(i) for i in test_set))
-outfile.close()
-
-dataset = load_dataset('text', data_files={'train': ['train.txt'], 'validation': 'test.txt'})
+if(not_added2 == True):
+  print(len(train_set))
+  with open('train.txt', 'w') as outfile:
+    outfile.write('\n'.join(str(i) for i in train_set))
+  outfile.close()
+  print(len(test_set))
+  with open('test.txt', 'w') as outfile:
+    outfile.write('\n'.join(str(i) for i in test_set))
+  outfile.close()
+#dataset = load_dataset('text', data_files={'train': ['train.txt'], 'validation': 'test.txt'})
 #dataset2 = load_dataset2(dataset_name, split="train")
 dataset2 = load_dataset('text', data_files={'text': ['train.txt']})
-
-tokenized_datasets = dataset.map(tokenize_function, batched=True, num_proc=NUM_PROC, remove_columns=["text"])
-
 block_size = 128
+train_dataset2 = dataset2['text']
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+import transformers
+import torch
 
+model_name = "vilsonrodrigues/falcon-7b-instruct-sharded"
+#use_flash_attention_2=True,
+# torch_dtype=torch.float32, 
+model = AutoModelForCausalLM.from_pretrained(model_name,
+    torch_dtype=torch.float32, 
+    device_map = 'auto' ,trust_remote_code=True) #LLM Model
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+#tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+tokenizer.pad_token = tokenizer.eos_token
+
+#model.config.use_cache = False
+from peft import LoraConfig, get_peft_model, PeftConfig, PeftModel, prepare_model_for_kbit_training
+
+
+
+#model = prepare_model_for_kbit_training(model)
+lora_alpha = 32 # scaling factor for the weight matrices
+lora_dropout = 0.05 # dropout probability of the LoRA layers
+lora_rank = 32 # dimension of the low-rank matrices
+peft_config = LoraConfig(
+    lora_alpha=lora_alpha,
+    lora_dropout=lora_dropout,
+    r=lora_rank,
+    bias="none",  # setting to 'none' for only training weight params instead of biases
+    task_type="CAUSAL_LM",
+    target_modules=[         # Setting names of modules in falcon-7b model that we want to apply LoRA to
+        "query_key_value",
+        "dense",
+        "dense_h_to_4h",
+        "dense_4h_to_h",
+    ]
+)
+
+def print_trainable_parameters(model):
+    """
+    Prints the number of trainable parameters in the model.
+    """
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param:.2f}"
+    )
+
+
+
+
+# Tokenize the dataset
+#def tokenize_function(examples):
+#    return tokenizer(examples["text"], truncation=True)
+#train_dataset2_tok = train_dataset2.map(tokenize_function, batched=True)
+from transformers import DataCollatorWithPadding
+from torch.nn.parallel import DataParallel
+from transformers import AutoModelForCausalLM ,BitsAndBytesConfig
+from transformers import Trainer, TrainingArguments
+# TrainingArguments
+output_dir = "./falcon-7b-instruct-sharded_large_peft"
+output_dir_name = "falcon-7b-instruct-sharded_large_peft"
+per_device_train_batch_size = 4
+gradient_accumulation_steps = 4
+optim = "paged_adamw_32bit"
+save_steps = 10
+logging_steps = 10
+learning_rate = 2e-4
+max_grad_norm = 0.3
+max_steps = 700
+warmup_ratio = 0.03
+lr_scheduler_type = "constant"
+push_to_hub_model_id="jellyconsumer/falcon-7b-instruct-sharded_large_peft"
+#torch.float32
+#    output_dir=output_dir,
+#save_strategy = "no",
+# gradient_checkpointing=False
+# evaluation_strategy = "epoch",
+training_arguments = TrainingArguments(
+    output_dir=output_dir,
+    overwrite_output_dir =  True,
+   # evaluation_strategy = "epoch",
+    save_strategy = "no",
+    num_train_epochs=1,
+    per_device_train_batch_size=per_device_train_batch_size,
+    gradient_accumulation_steps=gradient_accumulation_steps,
+    optim=optim,
+    save_steps=save_steps,
+    logging_steps=logging_steps,
+    learning_rate=learning_rate,
+    max_grad_norm=max_grad_norm,
+    max_steps=max_steps,
+    warmup_ratio=warmup_ratio,
+    group_by_length=True,
+    lr_scheduler_type=lr_scheduler_type,
+    gradient_checkpointing=True,
+    load_best_model_at_end=True,
+    push_to_hub=True,
+    hub_model_id=push_to_hub_model_id,
+    evaluation_strategy="no" ,
+    do_eval=False,
+)
+from transformers import TextDataset, DataCollatorForLanguageModeling
+from trl import SFTTrainer
+from transformers import Trainer
+max_seq_length = 512
+#    dataset_text_field="text",
+
+for param in model.parameters():
+    # freeze base model's layers
+    param.requires_grad = False
+
+if hasattr(model, "enable_input_require_grads"):
+    model.enable_input_require_grads()
+else:
+    def make_inputs_require_grad(module, input, output):
+        output.requires_grad_(True)
+
+    model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
+
+
+# SFTTrainer
+peft_model = get_peft_model(model, peft_config)
+peft_model.config.use_cache = False
+#model.config.use_cache = False
+if hasattr(model, "enable_input_require_grads"):
+    model.enable_input_require_grads()
+else:
+    def make_inputs_require_grad(module, input, output):
+         output.requires_grad_(True)
+
+    model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
+
+
+trainer = SFTTrainer(
+    model=model,
+    args=training_arguments,
+    train_dataset=train_dataset2,
+    peft_config=peft_config,
+    dataset_text_field="text",
+    max_seq_length=max_seq_length,
+    tokenizer=tokenizer
+    
+)
+
+#for name, module in trainer.model.named_modules():
+#    if "norm" in name:
+#        module = module.to(torch.float32)
+print("Start training")
+trainer.train()
+print("DONE training")
+trainer.push_to_hub()
+
+
+print("DONE")
+
+
+# device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+# Move the training dataset to the GPU
+"""
+trainer = Trainer(
+    model=model,
+    train_dataset=train_dataset2_tok,
+    args=training_arguments,
+    tokenizer=tokenizer,
+)
+trainer = SFTTrainer(
+    model=model,
+    args=training_arguments,
+    train_dataset=dataset,
+    peft_config=peft_config,
+    dataset_text_field="text",
+    max_seq_length=max_seq_length,
+    tokenizer=tokenizer 
+)
+trainer = Trainer(
+    model=model,
+    train_dataset=train_dataset,
+    dataset_text_field = 'text',
+    max_seq_length=max_seq_length,
+    tokenizer=tokenizer,
+    args=training_arguments
+)
+# Assuming train_dataset3 is a list of texts
+texts = train_dataset3
+#if isinstance(texts, str):
+#    texts = [texts]
+# Tokenize the texts
+tokenized_texts = tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
+# Create a dictionary with the required keys
+dataset_dict = {
+    "input_ids": tokenized_texts["input_ids"],
+    "attention_mask": tokenized_texts["attention_mask"],
+    "labels": tokenized_texts["input_ids"].clone(),  # Assuming you're training a causal language model
+}
+# Create a DataCollator for language modeling
+data_collator = DataCollatorForLanguageModeling(
+    tokenizer=tokenizer,
+    mlm=False  # Set to True if you want to use masked language modeling
+)
+# Use the dictionary to create a TextDataset
+train_dataset = TextDataset(
+    dataset_dict,
+    block_size=128  # Adjust block_size based on your data
+)
+# Use the dictionary to create a TextDataset
+train_dataset = TextDataset(
+    dataset_dict,
+    block_size=128  # Adjust block_size based on your data
+)
+    dataset_text_field="text",
+train_dataset3 = TextDataset(
+    tokenizer=tokenizer,
+    file_path="train.txt",
+    block_size=128  # Adjust block_size based on your data
+)
+#model_name = "tiiuae/falcon-7b-instruct"
+#
+#tokenizer = AutoTokenizer.from_pretrained(model_name)
+def tokenize_function(examples):
+    return tokenizer(examples["text"])
+tokenized_datasets = dataset.map(tokenize_function, batched=True, num_proc=NUM_PROC, remove_columns=["text"])
+block_size = 128
 def group_texts(examples):
     # Concatenate all texts.
     concatenated_examples = {k: sum(examples[k], []) for k in examples.keys()}
@@ -284,175 +504,118 @@ def group_texts(examples):
     }
     result["labels"] = result["input_ids"].copy()
     return result
-
 lm_datasets = tokenized_datasets.map(
     group_texts,
     batched=True,
     batch_size=1000,
     num_proc=NUM_PROC,
 )
-#lm_datasets = lm_datasets.shuffle(seed=42).select([i for i in range(1000)])  # Adjust the number of examples
-from transformers import AutoModelForCausalLM ,BitsAndBytesConfig
-# MAYBE CHAGE AutoModelForCausalLM to AutoModelForQuestionAnswering ?
-#model_to_be_modified = AutoModelForCausalLM.from_pretrained(model_name,device_map ='auto',trust_remote_code=True)
-
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.float16,
-    llm_int8_enable_fp32_cpu_offload=True
+train_dataset = TextDataset(
+    tokenizer=tokenizer,
+    file_path="train.txt",
+    block_size=128  # Adjust block_size based on your data
 )
-bnb_config2 = BitsAndBytesConfig(
-    llm_int8_enable_fp32_cpu_offload=True
+test_dataset = TextDataset(
+    tokenizer=tokenizer,
+    file_path="test.txt",
+    block_size=128  # Adjust block_size based on your data
 )
-"""
-model_to_be_modified = AutoModelForCausalLM.from_pretrained(
-    model_name,device_map="auto"
+train_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
+train_dataset["input_ids"] = train_dataset["input_ids"].to(device)
+train_dataset["attention_mask"] = train_dataset["attention_mask"].to(device)
+train_dataset["labels"] = train_dataset["labels"].to(device)
+# Move the training dataset to the GPU
+test_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
+test_dataset["input_ids"] = test_dataset["input_ids"].to(device)
+test_dataset["attention_mask"] = test_dataset["attention_mask"].to(device)
+test_dataset["labels"] = test_dataset["labels"].to(device)
+# Create data collator
+data_collator = DataCollatorForLanguageModeling(
+    tokenizer=tokenizer,
+    mlm=False  # Set to True if you want to use masked language modeling
 )
-
-model_to_be_modified = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    device_map="auto",
-    trust_remote_code=True
-)
-
-
-model_to_be_modified = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    quantization_config=bnb_config2,
-    device_map="auto",
-    trust_remote_code=True
-)
-"""
-model_to_be_modified = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    quantization_config=bnb_config,
-    device_map="auto",
-    trust_remote_code=True
-)
-
-from peft import LoraConfig
-
-lora_alpha = 16
-lora_dropout = 0.1
-lora_r = 64
-
 peft_config = LoraConfig(
-    lora_alpha=lora_alpha,
-    lora_dropout=lora_dropout,
-    r=lora_r,
+    lora_alpha=16,
+    lora_dropout=0.1,
+    r=64,
     bias="none",
     task_type="CAUSAL_LM",
-    target_modules=[
-        "query_key_value",
-        "dense",
-        "dense_h_to_4h",
-        "dense_4h_to_h",
-    ]
 )
-
-
-
-from transformers import Trainer, TrainingArguments
-
-"""
-training_args = TrainingArguments(
-    f"{model_name}-finetuned_falcon_airforce_pdf",
-    evaluation_strategy = "epoch",
-    learning_rate=2e-5,
-    weight_decay=0.01,
-    push_to_hub=True,
-    per_device_train_batch_size=2,
-    gradient_accumulation_steps=2,
-)
-    #
-    #
-"""
-"""
-trainer = Trainer(
-    model=model_to_be_modified,
-    args=training_args,
-    train_dataset=lm_datasets["train"],
-    eval_dataset=lm_datasets["validation"],
-    gradient_accumulation_steps=2,
-    max_split_size_mb=64,
-)
-training_args = TrainingArguments(
-    f"{model_name}-finetuned_falcon_airforce_pdf",
-    evaluation_strategy = "epoch",
-    learning_rate=2e-5,
-    weight_decay=0.01,
-    push_to_hub=True,
-)
-
-"""
-output_dir = "./results"
-per_device_train_batch_size = 4
-gradient_accumulation_steps = 4
-optim = "paged_adamw_32bit"
-save_steps = 10
-logging_steps = 10
-learning_rate = 2e-4
-max_grad_norm = 0.3
-max_steps = 500
-warmup_ratio = 0.03
-lr_scheduler_type = "constant"
-
-training_arguments = TrainingArguments(
-    output_dir=output_dir,
-    per_device_train_batch_size=per_device_train_batch_size,
-    gradient_accumulation_steps=gradient_accumulation_steps,
-    optim=optim,
-    save_steps=save_steps,
-    logging_steps=logging_steps,
-    learning_rate=learning_rate,
-    fp16=True,
-    max_grad_norm=max_grad_norm,
-    max_steps=max_steps,
-    warmup_ratio=warmup_ratio,
-    group_by_length=True,
-    lr_scheduler_type=lr_scheduler_type,
-    gradient_checkpointing=True,
-    push_to_hub=True
-)
-
-
-    #
-    #
-"""
-trainer = Trainer(
-    model=model_to_be_modified,
-    args=training_args,
-    train_dataset=lm_datasets["train"],
-    eval_dataset=lm_datasets["validation"], 
-)
-"""
-from trl import SFTTrainer
-
-max_seq_length = 512
-
-trainer = SFTTrainer(
-    model=model_name,
-    train_dataset=dataset2,
-    peft_config=peft_config,
-    dataset_text_field="text",
-    max_seq_length=max_seq_length,
+name = "lor_ad"
+# causes error
+test_data_collator = DataCollatorForLanguageModeling(
     tokenizer=tokenizer,
-    args=training_arguments,
+    mlm=False  # Set to True if you want to use masked language modeling
 )
-for name, module in trainer.model.named_modules():
-    if "norm" in name:
-        module = module.to(torch.float32)
-    #
-# torch.cuda.set_per_process_memory_fraction(0.8)
-trainer.train()
-
-
-
-"""# Next code Section is loading LLM and vector database and running LLM. Got some of the code from  
-https://medium.com/@nageshmashette32/building-a-document-based-question-answering-system-with-langchain-using-open-source-llm-model-3b49c0d4a8b8
+#class CustomTextDataset(Dataset):
+class CustomTextDataset():
+    def __init__(self, file_path, tokenizer, block_size):
+        self.examples = []
+        with open(file_path, encoding="utf-8") as f:
+            text = f.read()
+            tokenized_text = tokenizer.encode(text)
+        for i in range(0, len(tokenized_text) - block_size + 1, block_size):
+            self.examples.append({"input_ids": tokenized_text[i : i + block_size]})
+    def __len__(self):
+        return len(self.examples)
+    def __getitem__(self, index):
+        return self.examples[index]
+train_dataset_custom = CustomTextDataset(
+    file_path="train.txt",
+    tokenizer=tokenizer,
+    block_size=128  # Adjust block_size based on your data
+)
+def tokenize_function(examples):
+    return tokenizer(examples["text"], padding="max_length", truncation=True)
+from transformers import LineByLineTextDataset
+train_dataset4 = LineByLineTextDataset(
+    tokenizer=tokenizer,
+    file_path="train.txt",
+    block_size=512,  # Adjust this value based on your model's maximum sequence length
+)
+# Tokenize the dataset
+def tokenize_function(examples):
+    return tokenizer(examples["text"], padding="max_length", truncation=True)
+tokenized_datasets4 = train_dataset4.map(tokenize_function, batched=True, remove_columns=["text"])
+tokenized_datasets4 = tokenized_datasets4["text"]
+#tokenized_datasets = dataset2.map(tokenize_function, batched=True, num_proc=NUM_PROC, remove_columns=["text"])
+#tokenized_datasets = tokenized_datasets["text"]
+###
+#try
+#train_dataset3 = train_dataset3['text']
+train_dataset3 = TextDataset(
+    tokenizer=tokenizer,
+    file_path="train.txt",
+    block_size=128  # Adjust block_size based on your data
+)
+data_collator = DataCollatorForLanguageModeling(
+    tokenizer=tokenizer,
+    mlm=False  # Set to True if you want to use masked language modeling
+)
+from pathlib import Path
+def read_imdb_split(file_name):
+    texts = []
+    labels = []
+    file1 = open(file_name, 'r')
+    Lines = file1.readlines()
+    # Strips the newline character
+    for line in Lines:
+        texts.append(line)
+        labels.append(0)
+    file1.close()
+    return texts,labels
+train_texts, train_labels = read_imdb_split("train.txt")
+train_encodings = tokenizer(train_texts, truncation=True, padding=True)
+import torch
+class IMDbDataset(torch.utils.data.Dataset):
+    def __init__(self, encodings, labels):
+        self.encodings = encodings
+        self.labels = labels
+    def __getitem__(self, idx):
+        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
+        item['labels'] = torch.tensor(self.labels[idx])
+        return item
+    def __len__(self):
+        return len(self.labels)
+train_datasetd = IMDbDataset(train_encodings, train_labels)
 """
-
-print("DONE")
-
-
