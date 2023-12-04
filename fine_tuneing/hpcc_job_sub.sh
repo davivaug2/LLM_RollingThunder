@@ -5,7 +5,7 @@
 #SBATCH --partition matador
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=40
-#SBATCH --time=00:15:00
+#SBATCH --time=10:00:00
 #SBATCH --gpus-per-node=2
 ##SBATCH --mem-per-cpu=9625MB ##9.4GB, modify based on needs
 
