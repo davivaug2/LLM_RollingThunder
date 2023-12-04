@@ -14,11 +14,10 @@ clean version <br>
 https://colab.research.google.com/drive/1Mq4Dv0YAE-AkpMgPWoQ9tp9_lLlXc5aC?usp=sharing <br>
 Webpage <br>
 https://karltonh.github.io/Rollingthunder_ttu/#/about <br>
-general llm resources <br>
-https://docs.google.com/document/d/1D1ULMhXk451d1DGzC6euVl7FdKZZk6NViIfIRdWR0gI/edit?usp=sharing <br>
 
-Interview <br>
-https://docs.google.com/document/d/12KeBvNiS219Lco9fX-p9viiWkgE0xZdSu-_kupvsYt4/edit?pli=1 <br>
+
+server <br>
+[https://docs.google.com/document/d/12KeBvNiS219Lco9fX-p9viiWkgE0xZdSu-_kupvsYt4/edit?pli=1](https://github.com/karltonh/Rollingthunder_ttu/tree/master) <br>
 
 location of Air force manual pdf <br>
 https://www.tinker.af.mil/Resources/Technical-Orders/ <br>
@@ -44,4 +43,6 @@ Folder 1 contains all Air force PDF <br>
 Colab File contains the Main program , implments vector search / LLM retrieval-augmented generation. <br>
 HPCC contains a donwloaded Colab Python file for running on Texas Tech High Performance Computeing Center <br>
 presentation_misc contains documents and presentations about the program <br>
+general llm resources <br>
+https://docs.google.com/document/d/1D1ULMhXk451d1DGzC6euVl7FdKZZk6NViIfIRdWR0gI/edit?usp=sharing <br>
 
