@@ -13,12 +13,10 @@ conda config --append channels conda-forge
 conda create -n llm_lang3 scipy numpy  faiss-gpu accelerate transformers langchain 
 conda activate llm_lang3
 conda install -c conda-forge notebook
-conda install -c conda-forge huggingface_hub
 pip3 install cchardet
 pip3 install sentence_transformers 
 pip3 install "unstructured[all-docs]"
-pip3 install pypdf
-pip3 install datasets
+
 #
 # crate new file location to run
 mkdir llm
