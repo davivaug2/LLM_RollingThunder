@@ -4,7 +4,9 @@ https://colab.research.google.com/drive/1NBDWpadG-lNMEWc5LnQfBDzqNG_zlWi9#scroll
 LLM For Lockhead Martin <br>
 Home page for class. genereal resources like syllabus, what report  should look like etc <br>
 https://www.myweb.ttu.edu/tnhondan/CS4366/  <br>
-
+my_ver<br>
+https://colab.research.google.com/drive/1NrBCeAGduvukehehRAMeQCg1GfVJJVhQ#scrollTo=N-DpGAfngzFw<br>
+look_at_my fine_tuneing for training<br>
 presentation slides part 3 <br>
 [https://docs.google.com/presentation/d/1u0BzdWN0TD1h-MxzAtJvN9c2u1oQMldfErBZREOwPnI/edit#slide=id.p](https://docs.google.com/presentation/d/1VB6A7OdgUooMGLjT4urLMJOxq_vvRpTpg4OeBqaR8e0/edit#slide=id.p)](https://docs.google.com/presentation/d/1WzbW_xyrRAGHQwn1QV0933lpwZ-T7kJSaEc4AvbXb2w/edit#slide=id.g29e74661343_0_11)
 
