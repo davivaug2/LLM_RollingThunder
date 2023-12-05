@@ -1,4 +1,6 @@
 # LLM_RollingThunder
+MAIN CODE <br>
+https://colab.research.google.com/drive/1NBDWpadG-lNMEWc5LnQfBDzqNG_zlWi9#scrollTo=8Ei2-kifqiEf <br>
 LLM For Lockhead Martin <br>
 Home page for class. genereal resources like syllabus, what report  should look like etc <br>
 https://www.myweb.ttu.edu/tnhondan/CS4366/  <br>
@@ -12,6 +14,8 @@ code prototype google colab <br>
 https://colab.research.google.com/drive/1VfVMSvrKAmlgOcc9yOjBNC-TITuZZhpc#scrollTo=kGQOSG71OLGK <br>
 clean version <br>
 https://colab.research.google.com/drive/1Mq4Dv0YAE-AkpMgPWoQ9tp9_lLlXc5aC?usp=sharing <br>
+
+
 Webpage <br>
 https://karltonh.github.io/Rollingthunder_ttu/#/about <br>
 
