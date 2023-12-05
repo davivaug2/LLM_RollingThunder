@@ -3,7 +3,7 @@
 LLM For Lockhead Martin <br>
 Home page for class. genereal resources like syllabus, what report  should look like etc <br>
 https://www.myweb.ttu.edu/tnhondan/CS4366/  <br>
-my_ver<br>
+my_verision of code that works better<br>
 https://colab.research.google.com/drive/1NrBCeAGduvukehehRAMeQCg1GfVJJVhQ#scrollTo=N-DpGAfngzFw<br>
 look at fine_tuneing for training<br>
 presentation slides part 3 <br>
