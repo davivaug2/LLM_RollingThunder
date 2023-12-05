@@ -1,6 +1,5 @@
 # LLM_RollingThunder
-MAIN CODE <br>
-https://colab.research.google.com/drive/1NBDWpadG-lNMEWc5LnQfBDzqNG_zlWi9#scrollTo=8Ei2-kifqiEf <br>
+
 LLM For Lockhead Martin <br>
 Home page for class. genereal resources like syllabus, what report  should look like etc <br>
 https://www.myweb.ttu.edu/tnhondan/CS4366/  <br>
@@ -24,6 +23,8 @@ https://karltonh.github.io/Rollingthunder_ttu/#/about <br>
 
 server <br>
 [https://docs.google.com/document/d/12KeBvNiS219Lco9fX-p9viiWkgE0xZdSu-_kupvsYt4/edit?pli=1](https://github.com/karltonh/Rollingthunder_ttu/tree/master) <br>
+sever? CODE <br>
+https://colab.research.google.com/drive/1NBDWpadG-lNMEWc5LnQfBDzqNG_zlWi9#scrollTo=8Ei2-kifqiEf <br>
 
 location of Air force manual pdf <br>
 https://www.tinker.af.mil/Resources/Technical-Orders/ <br>
