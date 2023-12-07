@@ -69,7 +69,7 @@ cpu_per_node = 40
 NUM_PROC = NODE * cpu_per_node
 
 # for importing LLM from Huggingface
-hug_write_toke = "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"
+# hug_write_toke = 
 os.environ['HuggingFaceHub_API_Token']= hug_write_toke
 from huggingface_hub import login
 
